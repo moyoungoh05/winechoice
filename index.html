@@ -1,0 +1,668 @@
+<title>살롱 드 솔내 와인 파인더</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#17111a;
+    --bg-2:#1e1520;
+    --surface:#261c25;
+    --surface-2:#31232f;
+    --wine:#8c2f45;
+    --wine-bright:#b23e59;
+    --gold:#c9a15a;
+    --gold-soft:#e0c48a;
+    --text:#f3e9e6;
+    --text-muted:#b6a09d;
+    --line:#3a2a34;
+    --shadow: 0 18px 40px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    background:var(--bg);
+    color:var(--text);
+    min-height:100%;
+  }
+  body{
+    font-family:'Noto Sans KR','Gowun Batang',sans-serif;
+    display:flex;
+    justify-content:center;
+    padding-block:28px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(140,47,69,.35), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 15%, rgba(201,161,90,.14), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(140,47,69,.18), transparent 60%),
+      var(--bg);
+    z-index:-1;
+    animation: glow 14s ease-in-out infinite alternate;
+  }
+  @media (prefers-reduced-motion: reduce){
+    body::before{ animation:none; }
+  }
+  @keyframes glow{
+    from{ filter:brightness(1); }
+    to{ filter:brightness(1.12); }
+  }
+  h1,h2,h3,.serif{ font-family:'Gowun Batang',serif; text-wrap:balance; }
+  .app{
+    width:100%;
+    max-width:460px;
+    padding-inline:20px;
+    display:flex;
+    flex-direction:column;
+    min-height:calc(100vh - 56px);
+  }
+  [hidden]{ display:none !important; }
+
+  /* ---------- Home ---------- */
+  #screen-home{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:22px; padding-block:40px; }
+  .mark{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .mark svg{ width:56px; height:56px; opacity:.92; }
+  .mark .kr-label{ letter-spacing:.32em; font-size:11px; color:var(--gold-soft); text-transform:uppercase; }
+  .mark h1{ font-size:30px; font-weight:700; color:var(--gold-soft); line-height:1.3; margin:0; }
+  .tagline{ color:var(--text-muted); font-size:14.5px; line-height:1.7; max-width:320px; }
+  .stat-line{ font-size:12.5px; color:var(--text-muted); font-variant-numeric:tabular-nums; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding-block:10px; padding-inline:18px; }
+  .stat-line b{ color:var(--gold-soft); font-weight:700; }
+  .btn-primary{
+    appearance:none; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--wine-bright),var(--wine));
+    color:#fbeeef; font-family:inherit; font-size:16px; font-weight:500;
+    padding:16px 40px; border-radius:999px; box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:active{ transform:scale(.97); }
+  .btn-primary:hover{ box-shadow:0 20px 46px rgba(140,47,69,.55); }
+
+  .or-divider{ display:flex; align-items:center; gap:12px; width:100%; max-width:280px; color:var(--text-muted); font-size:11px; letter-spacing:.15em; margin-top:4px; }
+  .or-divider span{ flex:1; height:1px; background:var(--line); }
+  .food-search{ display:flex; gap:8px; width:100%; max-width:320px; }
+  .food-search input{
+    flex:1; min-width:0; font-family:inherit; font-size:14.5px; color:var(--text);
+    background:var(--surface); border:1px solid var(--line); border-radius:999px;
+    padding:13px 18px; outline:none; transition:border-color .15s ease;
+  }
+  .food-search input::placeholder{ color:var(--text-muted); }
+  .food-search input:focus{ border-color:var(--gold); }
+  .food-search-btn{
+    appearance:none; border:none; cursor:pointer; flex:none; width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#2a1c10; font-size:17px; font-weight:700;
+    transition:transform .15s ease;
+  }
+  .food-search-btn:active{ transform:scale(.93); }
+  .food-hint{ font-size:11.5px; color:var(--text-muted); max-width:300px; line-height:1.6; }
+
+  /* ---------- Quiz shell ---------- */
+  #screen-quiz{ flex:1; display:flex; flex-direction:column; padding-top:6px; }
+  .quiz-top{ display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+  .back-btn{
+    appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--text-muted);
+    width:36px; height:36px; border-radius:50%; cursor:pointer; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+    transition:background .15s ease;
+  }
+  .back-btn:hover{ background:var(--surface-2); color:var(--text); }
+  .back-btn:disabled{ opacity:.35; cursor:default; }
+  .dots{ display:flex; gap:7px; flex:1; justify-content:center; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--line); transition:background .2s ease, transform .2s ease; }
+  .dot.done{ background:var(--gold); }
+  .dot.current{ background:var(--wine-bright); transform:scale(1.35); }
+  .step-count{ font-size:12px; color:var(--text-muted); font-variant-numeric:tabular-nums; flex:none; width:36px; text-align:right; }
+
+  .q-title{ font-size:21px; font-weight:700; color:var(--text); margin:4px 0 26px; line-height:1.45; }
+
+  .choices-4{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .choices-2{ display:flex; flex-direction:column; gap:14px; position:relative; }
+  .choices-2 .or-chip{
+    align-self:center; font-size:11px; letter-spacing:.15em; color:var(--text-muted);
+    background:var(--bg-2); border:1px solid var(--line); border-radius:999px; padding:3px 12px; margin:-4px 0;
+  }
+
+  .opt-card{
+    appearance:none; text-align:left; cursor:pointer; font-family:inherit;
+    background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    color:var(--text); padding:16px 18px; transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .opt-card:hover{ border-color:var(--wine-bright); background:var(--surface-2); }
+  .opt-card:active{ transform:scale(.985); }
+  .opt-card .label{ font-size:15.5px; font-weight:500; display:block; }
+  .opt-card .sub{ font-size:12.5px; color:var(--text-muted); display:block; margin-top:4px; }
+  .choices-4 .opt-card{ display:flex; flex-direction:column; justify-content:center; min-height:84px; }
+  .choices-2 .opt-card{ min-height:70px; display:flex; flex-direction:column; justify-content:center; }
+
+  /* ---------- Result ---------- */
+  #screen-result{ flex:1; display:flex; flex-direction:column; padding-top:10px; }
+  .result-head{ text-align:center; margin-bottom:22px; }
+  .result-head .eyebrow{ font-size:11px; letter-spacing:.25em; color:var(--gold-soft); text-transform:uppercase; }
+  .result-head h2{ font-size:24px; color:var(--text); margin:8px 0 0; }
+
+  .wine-card{
+    display:flex; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:16px; margin-bottom:14px; box-shadow:var(--shadow);
+  }
+  .wine-card.best{ border-color:var(--gold); background:linear-gradient(160deg,var(--surface),#2c2030); }
+  .meter{ flex:none; width:46px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .glass{
+    width:34px; height:64px; background:var(--bg-2); position:relative; overflow:hidden;
+    clip-path:polygon(12% 0%,88% 0%,64% 66%,64% 100%,36% 100%,36% 66%);
+    border:1px solid var(--line);
+  }
+  .glass .fill{
+    position:absolute; left:0; right:0; bottom:0; height:0%;
+    background:linear-gradient(180deg,var(--gold-soft),var(--wine-bright));
+    transition:height .7s cubic-bezier(.22,.9,.3,1);
+  }
+  .meter .pct{ font-size:12px; font-weight:700; color:var(--gold-soft); font-variant-numeric:tabular-nums; }
+  .wine-info{ flex:1; min-width:0; }
+  .rank-tag{ font-size:10.5px; letter-spacing:.12em; color:var(--wine-bright); font-weight:700; text-transform:uppercase; }
+  .wine-info h3{ font-size:16.5px; margin:3px 0 6px; line-height:1.4; color:var(--text); }
+  .tag-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+  .tag{ font-size:11px; padding:2px 9px; border-radius:999px; border:1px solid var(--line); color:var(--text-muted); }
+  .tag.type{ border-color:var(--wine-bright); color:var(--gold-soft); }
+  .desc{ font-size:12.8px; color:var(--text-muted); line-height:1.6; }
+
+  .empty-state{ text-align:center; padding:40px 10px; color:var(--text-muted); font-size:14px; line-height:1.8; }
+  .empty-state .big{ font-size:34px; display:block; margin-bottom:10px; }
+
+  .footnote{ font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 20px; line-height:1.7; opacity:.8; }
+  .btn-secondary{
+    appearance:none; border:1px solid var(--line); background:transparent; color:var(--text);
+    font-family:inherit; font-size:14.5px; padding:13px; border-radius:999px; cursor:pointer; width:100%;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .btn-secondary:hover{ border-color:var(--gold); color:var(--gold-soft); }
+</style>
+
+<div class="app">
+
+  <section id="screen-home">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold)">
+        <path d="M7 2h10c.4 3.6-.6 7-3.2 8.6a2 2 0 0 0-.8 1.6V17h2.4a1 1 0 0 1 1 1v1H7.6v-1a1 1 0 0 1 1-1H11v-4.8a2 2 0 0 0-.8-1.6C7.6 9 6.6 5.6 7 2Z"/>
+      </svg>
+      <span class="kr-label">Salon de Solnae</span>
+      <h1>살롱 드 솔내<br>와인 파인더</h1>
+    </div>
+    <p class="tagline">일곱 가지 질문에 답하면, 지금 이 순간의 기분과 가장 잘 어울리는 와인을 찾아드려요.</p>
+    <p class="stat-line"><b id="wine-count">84</b>종의 와인 중에서 골라드려요</p>
+    <button class="btn-primary" id="start-btn">와인 취향 고르기</button>
+
+    <div class="or-divider"><span></span>또는<span></span></div>
+
+    <form id="food-form" class="food-search" autocomplete="off">
+      <input id="food-input" type="text" placeholder="오늘의 페어링 음식은?" maxlength="40" />
+      <button type="submit" class="food-search-btn" aria-label="음식으로 와인 찾기">→</button>
+    </form>
+    <p class="food-hint">음식 이름을 적으면 잘 어울리는 와인을 찾아드려요 (예: 삼겹살, 스시, 치킨, 떡볶이)</p>
+  </section>
+
+  <section id="screen-quiz" hidden>
+    <div class="quiz-top">
+      <button class="back-btn" id="back-btn" aria-label="이전 질문">←</button>
+      <div class="dots" id="dots"></div>
+      <span class="step-count" id="step-count">1/7</span>
+    </div>
+    <h2 class="q-title" id="q-title"></h2>
+    <div id="q-body"></div>
+  </section>
+
+  <section id="screen-result" hidden>
+    <div class="result-head">
+      <span class="eyebrow" id="result-eyebrow">Today's Pick</span>
+      <h2 id="result-title">오늘의 와인 추천</h2>
+    </div>
+    <div id="result-body"></div>
+    <p class="footnote">* 추천은 맛 취향만으로 전체 와인 중에서 찾아드려요. 일부는 Vivino 평점·테이스팅 노트를 참고했고, 나머지는 품종과 스타일을 바탕으로 정리했어요. 정확한 재고와 가격은 스태프에게 편하게 물어봐주세요 🙂</p>
+    <button class="btn-secondary" id="restart-btn">처음부터 다시 찾기</button>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Wine data ----------
+  // sw=단맛(0 과일~100 초콜릿) bd=바디(0 물~100 우유) ac=산미(0 레몬~100 요거트)
+  // tn=타닌(0 주스~100 홍차) bb=버블감(0 탄산수~100 탄산음료) p=가격대(1~4, 미정은 null)
+  const WINES = [
+    {n:"바론 데 발스 화이트(글래스용)",t:"white",sw:20,bd:30,ac:30,tn:5,bb:0,p:null,note:"산뜻한 시트러스 향과 깔끔한 마무리가 매력적인, 글라스로 편하게 즐기기 좋은 화이트예요."},
+    {n:"헤리티지 레세르바 소비뇽 블랑",t:"white",sw:15,bd:25,ac:20,tn:5,bb:0,p:1,note:"라임과 풀 향이 상큼하게 느껴지는 전형적인 소비뇽 블랑 스타일이에요."},
+    {n:"카바나 레제르바 메를로",t:"red",sw:20,bd:55,ac:60,tn:50,bb:0,p:1,note:"부드러운 자두와 체리 향이 감도는, 편하게 마시기 좋은 미디엄 바디 메를로예요."},
+    {n:"카바나 레제르바 카베르네 쇼비뇽",t:"red",sw:15,bd:75,ac:50,tn:75,bb:0,p:null,note:"블랙커런트와 은은한 오크 향이 어우러진 묵직한 카베르네 쇼비뇽이에요."},
+    {n:"브루멜 트레비아노 22",t:"white",sw:15,bd:25,ac:30,tn:5,bb:0,p:null,note:"가볍고 중성적인 향의 이탈리아 화이트로, 산뜻하게 목넘김이 좋아요."},
+    {n:"타보 피노그리지오 24",t:"white",sw:15,bd:25,ac:35,tn:5,bb:0,p:1,note:"배와 청사과 향이 은은한, 깔끔하고 가벼운 피노그리지오예요."},
+    {n:"호크스 드리프트 쇼비뇽블랑25",t:"white",sw:15,bd:25,ac:20,tn:5,bb:0,p:null,note:"패션프루트와 라임 향이 톡 쏘는, 신대륙 스타일의 발랄한 소비뇽 블랑이에요."},
+    {n:"논 알코홀릭 스파클링 로쏘",t:"sparkling",sw:40,bd:40,ac:55,tn:30,bb:45,p:1,note:"알코올 없이도 붉은 베리 향과 은은한 단맛의 버블감을 즐길 수 있어요."},
+    {n:"프로세블랑",t:"sparkling",sw:35,bd:25,ac:55,tn:5,bb:30,p:1,note:"복숭아와 배 향이 산뜻한, 가볍게 즐기기 좋은 스파클링이에요."},
+    {n:"줄리아 샤르도네 24",t:"white",sw:20,bd:55,ac:50,tn:5,bb:0,p:1,note:"노란 사과와 은은한 바닐라 향이 어우러진 부드러운 샤르도네예요."},
+    {n:"인트로버트 샤르도네",t:"white",sw:20,bd:55,ac:50,tn:5,bb:0,p:null,note:"잘 익은 스톤프루트 향에 크리미한 질감이 느껴지는 샤르도네예요."},
+    {n:"무사 까바 브륏",t:"sparkling",sw:10,bd:30,ac:35,tn:5,bb:25,p:1,note:"사과와 시트러스 향의 상쾌한 기포가 매력적인 스페인 까바예요."},
+    {n:"간치아 모스카토 로제",t:"sparkling",sw:70,bd:30,ac:60,tn:10,bb:40,p:1,note:"딸기와 장미 향이 달콤하게 퍼지는 이탈리아 모스카토 로제예요."},
+    {n:"델타 까베르네쇼비뇽 21",t:"red",sw:15,bd:75,ac:50,tn:75,bb:0,p:1,note:"블랙베리와 은은한 후추 향이 느껴지는 진하고 힘있는 카베르네 쇼비뇽이에요."},
+    {n:"브라운브라더스 모스카토 로사 아트에디션",t:"sparkling",sw:75,bd:30,ac:60,tn:10,bb:35,p:null,rating:3.7,note:"Vivino 평점 3.7 — 장미 꽃잎과 붉은 베리, 은은한 스파이스 향이 매력적인 달콤한 스파클링이에요."},
+    {n:"오스본 토니 포트",t:"red",sw:85,bd:80,ac:75,tn:55,bb:0,p:1,rating:3.7,note:"Vivino 평점 3.7 — 견과류 향과 은은한 단맛이 조화로운 클래식 토니 포트예요."},
+    {n:"썸머하우스 쇼비뇽블랑",t:"white",sw:15,bd:25,ac:20,tn:5,bb:0,p:1,note:"구스베리와 라임 향이 상큼하게 스치는 뉴질랜드 스타일 소비뇽 블랑이에요."},
+    {n:"엠포리움, 프리미티보 디 만두리아DOC 23",t:"red",sw:35,bd:70,ac:45,tn:60,bb:0,p:1,note:"잘 익은 자두와 건포도 향이 진한, 묵직하고 여운이 긴 프리미티보예요."},
+    {n:"레정드 알 보르도 블랑(보르도AOC)-소테른와인",t:"white",sw:80,bd:65,ac:45,tn:5,bb:0,p:1,note:"살구잼과 꿀 향이 진하게 감도는 달콤한 보르도 디저트 와인이에요."},
+    {n:"몬톤 데 피나스 2022",t:"red",sw:20,bd:55,ac:50,tn:50,bb:0,p:null,note:"부드러운 붉은 과실 향의 스페인 레드로, 무난하게 곁들이기 좋아요."},
+    {n:"펜폴즈 쿠능가 힐 카베르네 쇼비뇽",t:"red",sw:15,bd:70,ac:50,tn:65,bb:0,p:1,rating:3.6,note:"Vivino 평점 3.6 — 블랙올리브와 스파이스, 견고한 타닌이 느껴지는 호주 카베르네예요."},
+    {n:"펜폴즈 쿠능가 힐 쉬라즈23",t:"red",sw:25,bd:75,ac:45,tn:60,bb:0,p:1,rating:3.7,note:"Vivino 평점 3.7 — 자두와 블랙베리에 시나몬 향신료가 더해진 부드러운 쉬라즈예요."},
+    {n:"펜폴즈 쿠능가 힐 쉬라즈 카베르네 22",t:"red",sw:20,bd:72,ac:48,tn:62,bb:0,p:1,rating:3.7,note:"Vivino 평점 3.7 — 다크체리와 초콜릿, 스모키한 여운이 있는 호주 블렌드예요."},
+    {n:"펜폴즈 쿠능가 힐 샤르도네",t:"white",sw:20,bd:55,ac:48,tn:5,bb:0,p:1,rating:3.5,note:"Vivino 평점 3.5 — 천도복숭아와 시트러스 블라섬 향에 미네랄이 감도는 샤르도네예요."},
+    {n:"테라스 도시에르(꼬르비에AOC)",t:"red",sw:20,bd:60,ac:48,tn:55,bb:0,p:1,note:"가룸과 붉은 과실 향이 어우러진 남프랑스 스타일의 편안한 레드예요."},
+    {n:"로저구라트 브륏 로제 밀레짐 22",t:"sparkling",sw:20,bd:35,ac:45,tn:10,bb:50,p:1,note:"붉은 베리 향과 산뜻한 기포감이 어우러진 스페인 로제 스파클링이에요."},
+    {n:"쉐 되브르 샤르도네 V24",t:"white",sw:20,bd:50,ac:48,tn:5,bb:0,p:1,note:"레몬과 풋사과 향이 산뜻한 가벼운 샤르도네예요."},
+    {n:"쉐 되브르 메를로 V24",t:"red",sw:20,bd:55,ac:55,tn:50,bb:0,p:1,note:"체리와 자두 향이 부드럽게 퍼지는 편안한 메를로예요."},
+    {n:"쉐 되브르 까베르네 쇼비뇽 V24",t:"red",sw:15,bd:70,ac:50,tn:65,bb:0,p:1,note:"카시스와 은은한 오크 향의 무게감 있는 카베르네 쇼비뇽이에요."},
+    {n:"로저구라트 브륏 코랄 로제 23",t:"sparkling",sw:20,bd:35,ac:45,tn:10,bb:50,p:1,note:"산딸기 향과 섬세한 기포가 매력적인 코랄빛 로제 스파클링이에요."},
+    {n:"에커만 크레망 드 루아르 누벨 에스프리",t:"sparkling",sw:15,bd:35,ac:45,tn:5,bb:35,p:2,note:"청사과와 브리오슈 향이 조화로운 루아르 크레망이에요."},
+    {n:"올드 소울 샤르도네",t:"white",sw:20,bd:50,ac:48,tn:5,bb:0,p:2,note:"잘 익은 열대과일 향과 부드러운 오크 터치가 있는 샤르도네예요."},
+    {n:"쉐넌릿지 카베르네 쇼비뇽",t:"red",sw:15,bd:70,ac:50,tn:65,bb:0,p:1,rating:3.9,note:"Vivino 평점 3.9 — 체리와 블랙커런트에 모카·바닐라 향이 더해진 캘리포니아 카베르네예요."},
+    {n:"쉐넌릿지 진판델",t:"red",sw:35,bd:70,ac:45,tn:55,bb:0,p:1,rating:4.0,note:"Vivino 평점 4.0 — 블랙베리와 정향, 후추 향신료가 어우러진 잘 익은 진판델이에요."},
+    {n:"쉐넌 릿지 샤르도네",t:"white",sw:20,bd:52,ac:48,tn:5,bb:0,p:1,rating:3.7,note:"Vivino 평점 3.7 — 배와 청사과 향에 은은한 바닐라 오크가 감도는 샤르도네예요."},
+    {n:"구스타브 로렌츠 크레망 알자스",t:"sparkling",sw:15,bd:35,ac:48,tn:5,bb:35,p:2,rating:3.9,note:"Vivino 평점 3.9 — 브리오슈와 사과 향, 섬세한 기포가 인상적인 알자스 크레망이에요."},
+    {n:"수발리, 카베르네 쇼비뇽 22",t:"red",sw:15,bd:68,ac:50,tn:62,bb:0,p:2,note:"카시스와 허브 향이 은은하게 느껴지는 균형 잡힌 카베르네 쇼비뇽이에요."},
+    {n:"엘 트라토 2022",t:"natural",sw:25,bd:55,ac:55,tn:45,bb:0,p:null,note:"체리와 허브 향이 살아있는, 내추럴한 개성이 느껴지는 스페인 레드예요."},
+    {n:"라 큐라 2022",t:"natural",sw:25,bd:55,ac:55,tn:45,bb:0,p:null,note:"붉은 과실과 흙내음이 자연스럽게 어우러진 내추럴 와인이에요."},
+    {n:"르 메프리세 틴토 2021",t:"natural",sw:25,bd:55,ac:55,tn:45,bb:0,p:null,note:"야생 베리 향과 신선한 산미가 매력적인 내추럴 레드예요."},
+    {n:"셀바흐 오스터 리슬링 트로켄",t:"white",sw:15,bd:25,ac:20,tn:5,bb:0,p:2,rating:3.8,note:"Vivino 평점 3.8 — 라임과 풋사과 향에 산뜻한 산미가 살아있는 독일 드라이 리슬링이에요."},
+    {n:"장레옹3055 샤도네이",t:"white",sw:20,bd:50,ac:48,tn:5,bb:0,p:2,note:"레몬과 흰 꽃 향이 은은한 스페인 샤르도네예요."},
+    {n:"장레옹3055 메를로 쁘띠 베르도",t:"red",sw:20,bd:60,ac:50,tn:55,bb:0,p:2,note:"블랙베리와 스파이스 향이 있는 묵직한 스페인 레드 블렌드예요."},
+    {n:"샤토 록 드 캉달 20",t:"red",sw:18,bd:62,ac:50,tn:58,bb:0,p:2,note:"카시스와 삼나무 향이 은은한 클래식 보르도 스타일 레드예요."},
+    {n:"로사도 2022",t:"natural",sw:30,bd:35,ac:50,tn:15,bb:0,p:null,note:"수박과 딸기 향이 상큼한, 산뜻하게 즐기기 좋은 내추럴 로제예요."},
+    {n:"다우 레이트 바틀드 빈티지 포트 20",t:"red",sw:80,bd:80,ac:65,tn:55,bb:0,p:2,rating:4.0,note:"Vivino 평점 4.0 — 다크초콜릿과 모렐로체리 향, 후추 같은 타닌이 인상적인 포트와인이에요."},
+    {n:"알바로 팔라시오스 페탈로스23",t:"red",sw:20,bd:55,ac:50,tn:45,bb:0,p:2,note:"체리와 제비꽃 향에 슬레이트 미네랄이 감도는, 스페인 비에르소의 개성 있는 레드예요."},
+    {n:"알바2021",t:"natural",sw:20,bd:55,ac:50,tn:50,bb:0,p:null,note:"붉은 과실 향과 산뜻한 산미가 살아있는 내추럴 스타일 레드예요."},
+    {n:"앙브르 드 말투스 24(JS91)",t:"white",sw:20,bd:50,ac:50,tn:20,bb:0,p:2,note:"호박빛이 도는 개성 있는 화이트로, 은은한 산화 뉘앙스와 견과류 향이 느껴져요."},
+    {n:"뉴 웨이브걸 2022",t:"natural",sw:20,bd:45,ac:50,tn:10,bb:0,p:null,note:"싱그러운 과일 향과 자연스러운 산미가 돋보이는 내추럴 와인이에요."},
+    {n:"로저구라트 엑스트라 브뤼 그랑 리제르바 조셉 발스 20",t:"sparkling",sw:5,bd:35,ac:40,tn:5,bb:30,p:3,note:"브리오슈와 견과류 향이 느껴지는 드라이하고 깊이 있는 까바예요."},
+    {n:"덕혼 디코이 샤르도네 24",t:"white",sw:22,bd:55,ac:48,tn:5,bb:0,p:3,rating:3.8,note:"Vivino 평점 3.8 — 시트러스와 구아바 향에 부드러운 오크가 감도는 캘리포니아 샤르도네예요."},
+    {n:"브릭 첸츄리오 랑게 리슬링 V23",t:"white",sw:20,bd:30,ac:25,tn:5,bb:0,p:2,note:"청사과와 라임 향이 산뜻한 이탈리아 피에몬테 리슬링이에요."},
+    {n:"에다 비앙코 살렌토 IGP",t:"white",sw:18,bd:35,ac:40,tn:5,bb:0,p:3,note:"감귤과 아몬드 향이 은은한 이탈리아 남부 화이트예요."},
+    {n:"디코이 카베르네쇼비뇽",t:"red",sw:18,bd:70,ac:50,tn:62,bb:0,p:3,rating:4.0,note:"Vivino 평점 4.0 — 블랙베리와 초콜릿, 스파이스가 층층이 느껴지는 캘리포니아 카베르네예요."},
+    {n:"도멘 롱 드파키 샤블리",t:"white",sw:12,bd:35,ac:30,tn:5,bb:0,p:3,rating:3.9,note:"Vivino 평점 3.9 — 차가운 미네랄과 부싯돌 뉘앙스가 살아있는 정통 샤블리예요."},
+    {n:"진트 홈브레이트 게뷔르츠트라미너 투르크하임 22",t:"white",sw:45,bd:45,ac:40,tn:5,bb:0,p:3,rating:3.7,note:"Vivino 평점 3.7 — 리치와 장미 향이 화려하게 퍼지는 알자스 게뷔르츠트라미너예요."},
+    {n:"까사 로호 틴타피나",t:"red",sw:22,bd:60,ac:48,tn:55,bb:0,p:3,note:"블랙체리와 바닐라 향이 은은한 스페인 템프라니요 기반 레드예요."},
+    {n:"까삐땅 가네로 브루고뉴 피노누아 20",t:"red",sw:18,bd:45,ac:45,tn:40,bb:0,p:4,note:"붉은 체리와 은은한 흙내음이 우아한 부르고뉴 피노누아예요."},
+    {n:"윌리엄 페브르 샤블리",t:"white",sw:12,bd:35,ac:28,tn:5,bb:0,p:4,rating:4.0,note:"Vivino 평점 4.0 — 부싯돌 같은 미네랄과 깨끗한 산미가 돋보이는 정통 샤블리예요."},
+    {n:"덕혼 샤도네이 23",t:"white",sw:25,bd:60,ac:45,tn:5,bb:0,p:3,rating:4.1,note:"Vivino 평점 4.1 — 백도와 크렘브륄레 향이 풍성한 나파밸리 샤르도네예요."},
+    {n:"이스까이(말벡,까쇼)",t:"red",sw:20,bd:72,ac:48,tn:62,bb:0,p:3,note:"말벡과 카베르네 품종이 우아하게 어우러진, 아르헨티나의 대표 프리미엄 블렌드예요."},
+    {n:"도멘 당트 샤블리 프리미에 크뤼 베르디오 22",t:"white",sw:15,bd:42,ac:30,tn:5,bb:0,p:4,note:"레몬과 흰 꽃 향에 미네랄리티가 깊은 샤블리 프리미에 크뤼예요."},
+    {n:"라퐁 로쉐",t:"red",sw:18,bd:60,ac:48,tn:58,bb:0,p:4,note:"카시스와 삼나무 향이 우아한 보르도 생테스테프 스타일 레드예요."},
+    {n:"덕혼 메를로 22",t:"red",sw:20,bd:62,ac:50,tn:52,bb:0,p:4,rating:4.2,note:"Vivino 평점 4.2 — 체리와 자두에 감초·담배 향이 더해진 벨벳처럼 부드러운 메를로예요."},
+    {n:"까삐땅 가네로 사비니 레 본 프리메이 크뤼 레 샤르니에르 21",t:"red",sw:18,bd:48,ac:45,tn:42,bb:0,p:4,note:"붉은 베리와 은은한 스파이스가 우아한 부르고뉴 피노누아예요."},
+    {n:"떼땅져 빈티지 브뤼",t:"sparkling",sw:10,bd:40,ac:35,tn:5,bb:25,p:4,rating:4.3,note:"Vivino 평점 4.3 — 인동꽃 향과 농익은 과실향이 우아하게 어우러진 빈티지 샴페인이에요."},
+    {n:"폴로저 로제 빈티지 2019",t:"sparkling",sw:15,bd:42,ac:38,tn:8,bb:25,p:4,rating:4.3,note:"Vivino 평점 4.3 — 붉은 베리 향과 섬세한 기포가 우아한 빈티지 로제 샴페인이에요."},
+    {n:"도멘 당트 샤블리 그랑 크뤼 부그로 22",t:"white",sw:15,bd:48,ac:30,tn:5,bb:0,p:4,note:"노란 과일과 진한 미네랄리티가 깊이 있는 샤블리 그랑 크뤼예요."},
+    {n:"폴로저 블랑 드 블랑 2016",t:"sparkling",sw:8,bd:38,ac:32,tn:5,bb:22,p:4,rating:4.4,note:"Vivino 평점 4.4 — 시트러스와 크리미한 여운이 우아한 블랑 드 블랑 샴페인이에요."},
+    {n:"쌩클레어오미카 리저브 샤도네이",t:"white",sw:22,bd:55,ac:45,tn:5,bb:0,p:null,note:"잘 익은 스톤프루트와 버터리한 질감이 조화로운 뉴질랜드 샤르도네예요."},
+    {n:"루체20",t:"red",sw:20,bd:72,ac:48,tn:60,bb:0,p:null,note:"블랙체리와 감초 향이 진한, 묵직하고 우아한 토스카나 레드예요."},
+    {n:"칸티 모스카토 골드에디션",t:"sparkling",sw:75,bd:28,ac:55,tn:8,bb:35,p:null,note:"복숭아와 꿀 향이 달콤한, 가볍게 즐기기 좋은 모스카토 스파클링이에요."},
+    {n:"칸티 브라케토 핑크에디션(레드스파클링)",t:"sparkling",sw:70,bd:35,ac:55,tn:15,bb:45,p:null,note:"딸기와 장미 향이 달콤하게 톡 쏘는 이탈리아 레드 스파클링이에요."},
+    {n:"파르펠레 모스카토 다스티 홀리데이 에디션",t:"sparkling",sw:78,bd:25,ac:55,tn:5,bb:35,p:null,note:"복숭아와 포도 향이 은은하게 달콤한 저알코올 모스카토 다스티예요."},
+    {n:"이기갈 지공다스 20",t:"red",sw:20,bd:70,ac:45,tn:62,bb:0,p:null,note:"블랙체리와 후추, 프로방스 허브 향이 진한 묵직한 론 레드예요."},
+    {n:"더 플라워 앤 더 비 레드 19",t:"red",sw:25,bd:60,ac:48,tn:48,bb:0,p:null,note:"잘 익은 붉은 과실 향과 부드러운 타닌이 편안한 레드예요."},
+    {n:"카테나 자파티 말벡 22",t:"red",sw:22,bd:72,ac:45,tn:58,bb:0,p:null,rating:4.6,note:"Vivino 평점 4.6 — 블랙베리와 흙내음, 벨벳 같은 타닌이 인상적인 아르헨티나 말벡이에요."},
+    {n:"샤또 몬텔레나 나파 22",t:"white",sw:20,bd:55,ac:42,tn:5,bb:0,p:null,rating:4.4,note:"Vivino 평점 4.4 — 복숭아와 라벤더 향에 산뜻한 산미가 살아있는 나파밸리 샤르도네예요."},
+    {n:"보로쉐 스파클링 브뤼",t:"sparkling",sw:10,bd:32,ac:38,tn:5,bb:28,p:null,note:"사과와 배 향이 깔끔한, 드라이하게 즐기기 좋은 스파클링이에요."},
+    {n:"플라네타 샤도네이 23",t:"white",sw:20,bd:55,ac:45,tn:5,bb:0,p:null,rating:4.2,note:"Vivino 평점 4.2 — 노란 복숭아와 마지팬 향이 매력적인 시칠리아 샤르도네예요."},
+    {n:"콜롬비아 크레스트 그랜드 에스테이트 샤도네이",t:"white",sw:22,bd:52,ac:45,tn:5,bb:0,p:null,note:"사과와 배 향에 부드러운 바닐라 오크가 감도는, 편하게 즐기기 좋은 워싱턴 샤르도네예요."},
+    {n:"메종 바불로 피노누아(375ml)",t:"red",sw:18,bd:42,ac:45,tn:35,bb:0,p:null,note:"붉은 체리와 흙내음이 우아한 가벼운 피노누아로, 375ml 하프보틀이라 부담 없이 즐기기 좋아요."},
+    {n:"바조 몬테풀치아노 24",t:"red",sw:22,bd:58,ac:48,tn:48,bb:0,p:null,note:"자두와 블랙베리 향이 편안한, 부드러운 타닌의 몬테풀치아노 다브루쪼예요."},
+    {n:"빌라누 브뤼 로제",t:"sparkling",sw:18,bd:35,ac:42,tn:8,bb:45,p:1,note:"산딸기 향과 은은한 기포감이 어우러진 부드러운 로제 스파클링이에요."},
+    {n:"(논알코올) 비앙코",t:"sparkling",sw:25,bd:20,ac:45,tn:5,bb:40,p:1,note:"알코올 없이도 상큼한 과일 향과 섬세한 버블감을 자연스럽게 즐길 수 있는 화이트 스파클링이에요."},
+    {n:"본 위닝 윈 윈 리슬링 트로켄 23",t:"white",sw:12,bd:25,ac:25,tn:5,bb:0,p:2,note:"라임과 풋사과 향에 산뜻한 산미가 살아있는 드라이한 독일 리슬링이에요."},
+    {n:"쉐 되브르 소비뇽블랑",t:"white",sw:15,bd:25,ac:20,tn:5,bb:0,p:1,note:"구스베리와 허브 향이 상큼하게 느껴지는 전형적인 소비뇽 블랑 스타일이에요."}
+  ];
+  document.getElementById('wine-count').textContent = WINES.length;
+
+  const TYPE_LABEL = {red:"레드", white:"화이트", sparkling:"스파클링", natural:"내추럴"};
+  const PRICE_LABEL = {1:"3~4만원대", 2:"5~6만원대", 3:"7~9만원대", 4:"10만원 이상"};
+  const TOP_N = 3;
+
+  // ---------- Questions ----------
+  const QUESTIONS = [
+    { key:"type", title:"오늘은 어떤 와인이 끌리시나요?", kind:"choice4", options:[
+      {value:"red", label:"레드 와인", sub:"묵직하고 진한"},
+      {value:"white", label:"화이트 와인", sub:"산뜻하고 가벼운"},
+      {value:"sparkling", label:"스파클링 와인", sub:"톡톡 터지는"},
+      {value:"natural", label:"내추럴 와인", sub:"자연스럽고 개성있는"}
+    ]},
+    { key:"price", title:"생각하고 계신 가격대는요? (참고용)", kind:"choice4", options:[
+      {value:1, label:"3~4만원대", sub:""},
+      {value:2, label:"5~6만원대", sub:""},
+      {value:3, label:"7~9만원대", sub:""},
+      {value:4, label:"10만원 이상", sub:""}
+    ]},
+    { key:"sw", title:"단맛을 느낀다면, 어느 쪽에 가까울까요?", kind:"choice2", options:[
+      {value:0, label:"과일의 단맛", sub:"상큼하고 싱그러운 단맛"},
+      {value:100, label:"초콜릿의 단맛", sub:"묵직하고 진한 단맛"}
+    ]},
+    { key:"bd", title:"입 안에서 느껴지는 무게감은요?", kind:"choice2", options:[
+      {value:0, label:"물처럼 가볍게", sub:"산뜻하게 넘어가는 느낌"},
+      {value:100, label:"우유처럼 진하게", sub:"묵직하고 부드러운 느낌"}
+    ]},
+    { key:"ac", title:"산미는 어떤 느낌이 좋으세요?", kind:"choice2", options:[
+      {value:0, label:"레몬 같은 상큼함", sub:"톡 쏘는 새콤한 느낌"},
+      {value:100, label:"요거트·주스 같은 상큼함", sub:"부드러운 새콤한 느낌"}
+    ]},
+    { key:"tn", title:"떫은 느낌(타닌)은 어느 정도가 좋으세요?", kind:"choice2", condition: ans => ans.type === 'red', options:[
+      {value:0, label:"주스처럼 부드럽게", sub:"스치듯 가볍게 지나가는"},
+      {value:100, label:"홍차처럼 떫게", sub:"입안이 조여지는 느낌"}
+    ]},
+    { key:"bb", title:"탄산감은 어떤 느낌이 좋으세요?", kind:"choice2", condition: ans => ans.type === 'sparkling', options:[
+      {value:0, label:"탄산수 같은 버블", sub:"자잘하고 섬세한 기포"},
+      {value:100, label:"탄산음료 같은 버블", sub:"크고 시원한 기포"}
+    ]}
+  ];
+
+  function getActiveQuestions(ans){
+    return QUESTIONS.filter(q => !q.condition || q.condition(ans));
+  }
+
+  // ---------- State ----------
+  let stepIndex = 0;
+  const answers = {};
+
+  const screenHome = document.getElementById('screen-home');
+  const screenQuiz = document.getElementById('screen-quiz');
+  const screenResult = document.getElementById('screen-result');
+  const dotsEl = document.getElementById('dots');
+  const stepCountEl = document.getElementById('step-count');
+  const qTitleEl = document.getElementById('q-title');
+  const qBodyEl = document.getElementById('q-body');
+  const backBtn = document.getElementById('back-btn');
+
+  function renderDots(activeQuestions){
+    dotsEl.innerHTML = '';
+    activeQuestions.forEach((q,i) => {
+      const d = document.createElement('span');
+      d.className = 'dot' + (i < stepIndex ? ' done' : '') + (i === stepIndex ? ' current' : '');
+      dotsEl.appendChild(d);
+    });
+    stepCountEl.textContent = (stepIndex+1) + '/' + activeQuestions.length;
+    backBtn.disabled = stepIndex === 0;
+  }
+
+  function renderQuestion(){
+    const activeQuestions = getActiveQuestions(answers);
+    if (stepIndex >= activeQuestions.length) stepIndex = activeQuestions.length - 1;
+    const q = activeQuestions[stepIndex];
+    qTitleEl.textContent = q.title;
+    qBodyEl.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = q.kind === 'choice4' ? 'choices-4' : 'choices-2';
+
+    q.options.forEach((opt, i) => {
+      if (q.kind === 'choice2' && i === 1) {
+        const chip = document.createElement('span');
+        chip.className = 'or-chip';
+        chip.textContent = 'OR';
+        wrap.appendChild(chip);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'opt-card';
+      btn.innerHTML = '<span class="label">' + opt.label + '</span>' +
+        (opt.sub ? '<span class="sub">' + opt.sub + '</span>' : '');
+      btn.addEventListener('click', () => {
+        answers[q.key] = opt.value;
+        goNext();
+      });
+      wrap.appendChild(btn);
+    });
+    qBodyEl.appendChild(wrap);
+    renderDots(activeQuestions);
+  }
+
+  function goNext(){
+    const activeQuestions = getActiveQuestions(answers);
+    if (stepIndex < activeQuestions.length - 1){
+      stepIndex++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }
+  function goBack(){
+    if (stepIndex > 0){
+      stepIndex--;
+      renderQuestion();
+    }
+  }
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    screenHome.hidden = true;
+    screenQuiz.hidden = false;
+    stepIndex = 0;
+    renderQuestion();
+  });
+  backBtn.addEventListener('click', goBack);
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    screenResult.hidden = true;
+    screenHome.hidden = false;
+  });
+
+  // ---------- Description generator ----------
+  function sweetPhrase(v){ return v < 35 ? "상큼한 과일 단맛" : v > 65 ? "진한 초콜릿 같은 단맛" : "은은한 단맛"; }
+  function bodyPhrase(v){ return v < 35 ? "가볍고 산뜻한 바디" : v > 65 ? "묵직하고 풍부한 바디" : "부드러운 미디엄 바디"; }
+  function acidPhrase(v){ return v < 35 ? "레몬처럼 톡 쏘는 산미" : v > 65 ? "요거트처럼 부드러운 산미" : "산뜻한 산미"; }
+  function tanninPhrase(v){ return v < 30 ? "타닌감은 거의 없이 부드럽고" : v > 65 ? "홍차처럼 떫은 타닌이 있고" : "적당한 타닌이 느껴지고"; }
+  function bubblePhrase(v){ return v > 40 ? "탄산음료처럼 큼직한 버블" : "탄산수처럼 자잘한 버블"; }
+
+  function describeWine(w){
+    const bits = [sweetPhrase(w.sw), bodyPhrase(w.bd), acidPhrase(w.ac)];
+    let sentence = bits.join(', ') + '이 느껴지는';
+    if (w.t !== 'sparkling'){
+      sentence += ' ' + tanninPhrase(w.tn).replace(/,$/,'');
+    }
+    if (w.t === 'sparkling' || w.bb > 15){
+      sentence += (w.t !== 'sparkling' ? ', ' : ' ') + bubblePhrase(w.bb) + '이 있는';
+    }
+    return sentence + ' ' + TYPE_LABEL[w.t] + ' 와인이에요.';
+  }
+
+  // ---------- Scoring ----------
+  function weightsFor(type){
+    const w = {sw:1, bd:1, ac:1, tn:1, bb:1};
+    if (type === 'red'){ w.tn = 1.3; w.bb = 0.3; }
+    if (type === 'white'){ w.tn = 0.5; w.bb = 0.3; }
+    if (type === 'sparkling'){ w.bb = 1.4; w.tn = 0.4; }
+    return w;
+  }
+
+  function scoreWine(wine, ans){
+    // 가격대는 아직 참고용으로만 물어보고, 매칭은 맛(취향) 기준으로만 계산해요.
+    const w = weightsFor(wine.t);
+    const axes = ['sw','bd','ac','tn','bb'];
+    let diffSum = 0, weightSum = 0;
+    axes.forEach(ax => {
+      const diff = Math.abs((ans[ax] ?? 50) - wine[ax]);
+      diffSum += diff * w[ax];
+      weightSum += 100 * w[ax];
+    });
+    const pct = 100 - (diffSum / weightSum * 100);
+    return Math.max(0, Math.round(pct));
+  }
+
+  function getMatches(ans){
+    // 선택한 와인 타입을 우선으로 찾고, 그 안에서 추천 개수가 부족할 때만
+    // 다른 타입에서도 맛이 비슷한 와인을 채워 넣어요.
+    const sameType = WINES
+      .filter(w => w.t === ans.type)
+      .map(w => ({ wine:w, pct:scoreWine(w, ans) }))
+      .sort((a,b) => b.pct - a.pct);
+
+    if (sameType.length >= TOP_N) return sameType.slice(0, TOP_N);
+
+    const usedNames = new Set(sameType.map(m => m.wine.n));
+    const others = WINES
+      .filter(w => w.t !== ans.type && !usedNames.has(w.n))
+      .map(w => ({ wine:w, pct:scoreWine(w, ans) }))
+      .sort((a,b) => b.pct - a.pct);
+
+    return sameType.concat(others).slice(0, TOP_N);
+  }
+
+  // ---------- Food pairing ----------
+  // 전문 와인 사이트(Wine Folly / Vivino 등)가 공통으로 쓰는 페어링 원칙을 그대로 규칙화했어요.
+  //  - 타닌이 강한 와인은 기름지고 단백질 많은 음식과 (지방이 타닌을 부드럽게 감싸줌)
+  //  - 산미가 높은 와인은 기름지거나 짠 음식과 (산미가 입안을 개운하게 씻어줌)
+  //  - 단맛이 있는 와인은 매운 음식·디저트와 (단맛이 매운맛/단맛을 눌러 밸런스를 맞춰줌)
+  //  - 기포가 있는 와인은 튀김·짠 음식과 (탄산이 기름기를 씻어내림)
+  // 이 규칙으로 와인 84종 각각의 실제 당도·바디·산미·타닌·기포 값을 보고 스타일 태그를 매기고,
+  // 음식은 그 태그에 맞춰 매칭해요 — 즉 "이 음식엔 이 와인 하나"가 아니라, 와인마다 실제 풍미를 보고 판단해요.
+  function deriveWineTags(w){
+    const tags = [];
+    if (w.sw >= 68) tags.push('dessert');
+    if (w.t === 'sparkling'){
+      tags.push(w.sw >= 50 ? 'sparkling-sweet' : 'sparkling-dry');
+    } else if (w.t === 'white'){
+      if (w.sw >= 40) tags.push('white-aromatic');
+      else if (w.bd >= 46) tags.push('white-rich');
+      else tags.push('white-crisp');
+    } else { // red, natural
+      if (w.bd >= 64 && w.tn >= 52) tags.push('red-bold');
+      else if (w.bd < 48 && w.tn < 45) tags.push('red-light');
+      else tags.push('red-medium');
+    }
+    return tags;
+  }
+
+  const FOOD_PROFILES = [
+    { keys:["스테이크","소고기","한우","안심","등심","티본","스테익"], label:"스테이크·소고기", tags:["red-bold"], sw:20, bd:78, ac:45, tn:72, bb:0 },
+    { keys:["삼겹살","갈비","불고기","고기구이","바비큐","바베큐","숯불"], label:"고기구이", tags:["red-medium","red-bold"], sw:20, bd:62, ac:42, tn:52, bb:0 },
+    { keys:["양고기","램찹","양갈비"], label:"양고기", tags:["red-bold"], sw:20, bd:76, ac:45, tn:70, bb:0 },
+    { keys:["오리","훈제오리","오리훈제"], label:"오리 요리", tags:["red-light","red-medium"], sw:25, bd:60, ac:45, tn:45, bb:0 },
+    { keys:["치킨","프라이드","후라이드","닭튀김","튀김"], label:"치킨·튀김", tags:["sparkling-dry","white-crisp"], sw:20, bd:32, ac:40, tn:8, bb:38 },
+    { keys:["피자"], label:"피자", tags:["red-medium"], sw:22, bd:55, ac:42, tn:45, bb:0 },
+    { keys:["토마토파스타","토마토 파스타","라구","볼로네제","알리오"], label:"토마토 파스타", tags:["red-medium"], sw:20, bd:55, ac:40, tn:42, bb:0 },
+    { keys:["크림파스타","크림 파스타","까르보나라","카르보나라","봉골레","리조또","리조토","랍스터"], label:"크림 파스타·랍스터", tags:["white-rich"], sw:20, bd:65, ac:42, tn:8, bb:0 },
+    { keys:["스시","초밥","사시미","회","연어","참치"], label:"스시·회", tags:["white-crisp","sparkling-dry"], sw:15, bd:25, ac:22, tn:5, bb:0 },
+    { keys:["굴","조개","해산물","새우","전복"], label:"해산물", tags:["sparkling-dry","white-crisp"], sw:12, bd:28, ac:22, tn:5, bb:12 },
+    { keys:["치즈","치즈플래터","브리","까망베르","블루치즈","고르곤졸라"], label:"치즈", tags:["dessert","red-medium","white-rich"], sw:35, bd:58, ac:45, tn:35, bb:0 },
+    { keys:["매운","떡볶이","불닭","마라","김치찌개","김치","닭발"], label:"매운 음식", tags:["white-aromatic","sparkling-sweet"], sw:55, bd:42, ac:50, tn:12, bb:22 },
+    { keys:["초콜릿","디저트","케이크","티라미수"], label:"초콜릿·디저트", tags:["dessert"], sw:85, bd:75, ac:55, tn:35, bb:0 },
+    { keys:["과일","타르트","마카롱"], label:"과일 디저트", tags:["sparkling-sweet","dessert"], sw:70, bd:35, ac:55, tn:10, bb:20 },
+    { keys:["샐러드","브런치"], label:"샐러드·브런치", tags:["white-crisp","sparkling-dry"], sw:18, bd:28, ac:28, tn:5, bb:10 },
+    { keys:["버섯"], label:"버섯 요리", tags:["red-light","white-rich"], sw:20, bd:48, ac:44, tn:32, bb:0 },
+    { keys:["족발","보쌈","수육"], label:"족발·보쌈", tags:["red-medium","sparkling-dry"], sw:20, bd:55, ac:42, tn:35, bb:0 },
+    { keys:["곱창","막창","내장"], label:"곱창·막창", tags:["red-medium"], sw:20, bd:58, ac:40, tn:38, bb:0 }
+  ];
+  const FOOD_DEFAULT = { label:"이 음식", tags:[], sw:28, bd:50, ac:45, tn:32, bb:12 };
+
+  function matchFood(query){
+    const q = query.trim().toLowerCase();
+    for (const f of FOOD_PROFILES){
+      if (f.keys.some(k => q.includes(k.toLowerCase()))) return f;
+    }
+    return null;
+  }
+
+  document.getElementById('food-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('food-input');
+    const query = input.value.trim();
+    if (!query) return;
+    showFoodResult(query);
+  });
+
+  function tagBonus(wine, profileTags){
+    if (!profileTags || !profileTags.length) return 0;
+    const wtags = deriveWineTags(wine);
+    let bestRank = -1;
+    wtags.forEach(t => {
+      const idx = profileTags.indexOf(t);
+      if (idx !== -1 && (bestRank === -1 || idx < bestRank)) bestRank = idx;
+    });
+    if (bestRank === 0) return 18;   // 이 음식에 가장 이상적인 스타일
+    if (bestRank === 1) return 10;   // 함께 곁들이기 좋은 스타일
+    if (bestRank > 1) return 4;
+    return 0;                        // 태그가 안 맞으면 맛 프로필 유사도로만 순위 결정
+  }
+
+  function showFoodResult(query){
+    const found = matchFood(query);
+    const profile = found || FOOD_DEFAULT;
+    const matches = WINES
+      .map(w => ({ wine:w, pct: Math.min(100, scoreWine(w, profile) + tagBonus(w, profile.tags)) }))
+      .sort((a,b) => b.pct - a.pct)
+      .slice(0, TOP_N);
+
+    screenHome.hidden = true;
+    screenQuiz.hidden = true;
+    document.getElementById('result-eyebrow').textContent = 'Food Pairing';
+    document.getElementById('result-title').textContent = '"' + query + '"와 어울리는 와인';
+    renderResultCards(matches, !found, profile.tags);
+    screenResult.hidden = false;
+  }
+
+  // ---------- Result rendering ----------
+  function showResult(){
+    screenQuiz.hidden = true;
+    document.getElementById('result-eyebrow').textContent = "Today's Pick";
+    document.getElementById('result-title').textContent = '오늘의 와인 추천';
+    renderResultCards(getMatches(answers), false);
+    screenResult.hidden = false;
+  }
+
+  function renderResultCards(matches, isFallbackGuess, foodTags){
+    const resultBody = document.getElementById('result-body');
+    resultBody.innerHTML = '';
+
+    if (isFallbackGuess){
+      const note = document.createElement('p');
+      note.className = 'food-hint';
+      note.style.textAlign = 'center';
+      note.style.marginBottom = '14px';
+      note.textContent = '아직 등록되지 않은 음식이라, 무난하게 잘 어울리는 스타일로 찾아봤어요.';
+      resultBody.appendChild(note);
+    }
+
+    if (matches.length === 0){
+      resultBody.innerHTML +=
+        '<div class="empty-state"><span class="big">🍷</span>' +
+        '조건에 맞는 와인을 찾지 못했어요.<br>스태프에게 편하게 말씀해주세요!' +
+        '</div>';
+      return;
+    }
+
+    matches.forEach((m, i) => {
+      const card = document.createElement('div');
+      card.className = 'wine-card' + (i === 0 ? ' best' : '');
+      const priceText = m.wine.p != null ? PRICE_LABEL[m.wine.p] : '직원 문의';
+      const desc = m.wine.note || describeWine(m.wine);
+      const ratingTag = m.wine.rating != null ? '<span class="tag">Vivino ★' + m.wine.rating.toFixed(1) + '</span>' : '';
+      const isTopFoodMatch = foodTags && foodTags.length && deriveWineTags(m.wine).includes(foodTags[0]);
+      const pairTag = isTopFoodMatch ? '<span class="tag type">찰떡궁합</span>' : '';
+      card.innerHTML =
+        '<div class="meter">' +
+          '<div class="glass"><div class="fill" data-pct="' + m.pct + '"></div></div>' +
+          '<span class="pct">' + m.pct + '%</span>' +
+        '</div>' +
+        '<div class="wine-info">' +
+          '<span class="rank-tag">' + (i === 0 ? '베스트 매치' : (i+1) + '순위') + '</span>' +
+          '<h3>' + m.wine.n + '</h3>' +
+          '<div class="tag-row">' +
+            pairTag +
+            '<span class="tag type">' + TYPE_LABEL[m.wine.t] + '</span>' +
+            '<span class="tag">' + priceText + '</span>' +
+            ratingTag +
+          '</div>' +
+          '<p class="desc">' + desc + '</p>' +
+        '</div>';
+      resultBody.appendChild(card);
+    });
+
+    requestAnimationFrame(() => {
+      resultBody.querySelectorAll('.fill').forEach(el => {
+        el.style.height = el.dataset.pct + '%';
+      });
+    });
+  }
+})();
+</script>
